@@ -21,7 +21,7 @@ Give the numbers before -> after for that layer (correct / wrong / no answer, ou
 whether it changed what the agent *can do* or only what it *admits*. If no layer changed the
 number of correct answers, say so and explain what the layers did change instead.
 
-(write here)
+Layer 1 changed the numbers the most. Before it (bare), the score was 16 correct, 4 wrong, and 4 no answer. After Layer 1, it became 18 correct, 6 wrong, and 0 no answer. Layer 1 helped the agent get a little smarter because instead of crashing on alias questions, it fixed two region names (q23 and q24). At the same time, it picked the wrong regions on q21 and q22, so wrong answers also went up. Layer 2 did not change anything at all, and Layer 3 just made the model more honest by turning 2 wrong answers into no answer.
 
 ## 2. One failure the full harness did not fix
 
@@ -30,7 +30,7 @@ Pick one question that the full harness (layer 3) still gets wrong or refuses. G
 the model do instead? Name one thing you would add to the harness, and what it would cost
 (extra model calls, tokens, time, or a new way to fail).
 
-(write here)
+Question q21 (unemployment rate in Nur-Sultan in 2022) is still wrong even with Layer 3. In the trace, the model first called get_series with Nur-Sultan and got an unknown region error. Then it called list_regions, saw the valid names, but did not realize that Nur-Sultan is now Astana, so it picked a different region and returned its number. Layer 3 allowed this because the number came from a tool, even though it was for the wrong city. To fix this, we can add a simple alias map in the harness to replace old names (like Nur-Sultan to Astana) before calling the tool. The cost of this fix is a new way to fail, because if the map guesses wrong on similar names (like Almaty City and Almaty Region), it will quietly return data for the wrong place.
 
 ## 3. Workflow or agent for the monthly ranking?
 
@@ -39,7 +39,7 @@ indicator in one year". Would you ship the fixed workflow or the agent? Use the 
 number of model calls, the tokens and the time you measured in Part 1. Then say in one sentence
 what kind of question would make you choose the other one.
 
-(write here)
+I would pick a fixed workflow because the question format is always the same. Looking at the 15 fixed questions in Part 1, the workflow is much better: it got 13/15 correct (compared to 9/15 for the bare agent), used only 15 model calls instead of 26, spent 3,852 tokens instead of 19,835 (about 5 times cheaper), and finished in 15.8 seconds instead of 50.2 seconds. I would only choose an agent if the firm needed to answer open multi-step questions, such as asking how many percent the average wage grew from 2020 to 2025 in the region that had the highest unemployment rate in 2025
 
 ---
 
